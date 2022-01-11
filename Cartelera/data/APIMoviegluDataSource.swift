@@ -27,16 +27,16 @@ class APIMoviegluDataSource: DataSource {
     
     private var headers: [String: String] {
         return ["client": "LETI",
-                "x-api-key": "EdLYZt8NH85m6G0FpJJ1cE6qBqkU91O5Q3d4Swta", //Sandbox
-                "authorization": "Basic TEVUSV9YWDoyVnkxdThTM2trR0g=",
+                "x-api-key": "", //Fill
+                "authorization": "", // Fill
                 "territory": "XX",
-                "device-datetime": getDatatime(),
+                "device-datetime": getDatetime(),
                 "geolocation": "",
                 "api-version": "v200"
         ]
     }
     
-    private func getDatatime() -> String {
+    private func getDatetime() -> String {
         let formater = DateFormatter()
         formater.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
         return formater.string(from: Date())
@@ -53,33 +53,23 @@ class APIMoviegluDataSource: DataSource {
 
 extension APIMoviegluDataSource: APIMoviegluDataSourceProtocol {
     
-    func getFilms() {
-        // TODO: Refactor
-        
+    func getFilms(with geolocation: String, success: @escaping SuccessCompletionBlock, failure: @escaping FailureCompletionBlock) {
         let urlString = urlBase + Endpoind.filmsNowShowing
-        guard let url = URL(string: urlString) else { return }
+        guard let url = URL(string: urlString) else {
+            let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "URL error in datasource"]) as Error
+            failure(error)
+            return
+        }
         
         var customHeaders = headers
-        customHeaders["geolocation"] = "40.4165;-3.70256"
+        customHeaders["geolocation"] = geolocation
         
-        executeRequest(with: url, httpMethod: .GET, headers: customHeaders) { object in
-            
-            guard let jsonData = object as? Data else {
-                return
-            }
-            
-            do {
-                let response = try JSONDecoder().decode(FilmsModel.self, from: jsonData)
-                
-            } catch {
-                // TODO: Error
-                print(error)
-            }
-                        
-        } failure: { error in
-            // TODO: Error
-            print(error)
+        executeRequest(with: url, httpMethod: .GET, headers: customHeaders, success: success, failure: failure)
+    }
+    
+    func downloadImage(from url: URL, completion: @escaping (Data) -> Void) {
+        url.downloadImage { data in
+            completion(data)
         }
-
     }
 }

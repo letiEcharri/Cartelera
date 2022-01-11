@@ -10,5 +10,6 @@
 import Foundation
 
 protocol APIMoviegluDataSourceProtocol {
-    func getFilms()
+    func getFilms(with geolocation: String, success: @escaping SuccessCompletionBlock, failure: @escaping FailureCompletionBlock)
+    func downloadImage(from url: URL, completion: @escaping (Data) -> Void)
 }

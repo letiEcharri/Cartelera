@@ -19,20 +19,30 @@ class AppCoordinator: Coordinator {
             
     var navigationController: UINavigationController?
     var window: UIWindow
+    let appDependencies: AppDependenciesProtocol
     
     // MARK: - Init
     
-    init(_ window: UIWindow) {
+    init(_ window: UIWindow, appDependencies: AppDependenciesProtocol = AppDependencies()) {
         self.window = window
+        self.appDependencies = appDependencies
     }
     
     // MARK: - Coordinator
     
     func resolve() {
-        let viewController = ViewController()
+        let viewController = appDependencies.makeFilmsListView(navigationDelegate: self)
         navigationController = UINavigationController(rootViewController: viewController)
         navigationController?.modalPresentationStyle = .fullScreen
         window.rootViewController = navigationController
     }
         
+}
+
+// MARK: - FilmsListNavigationDelegate
+
+extension AppCoordinator: FilmsListNavigationDelegate {
+    func navigate(to: FilmsListNavigation) {
+        
+    }
 }
